@@ -32,6 +32,20 @@ void menu_selection (int menu_option) { // função que direciona o programa par
   return;
 }
 
+int find_fat_sector(int j, int t, int s){
+  int sum;
+  sum=(j*300)+(t*60)+s;
+  return sum;
+}
+int find_drive_sector(int fat_number, int *j, int *t, int *s){ // NECESSÁRIO CHECAR!!!!
+  int result;
+  j=fat_number/300;
+  fat_number=fat_number%300;
+  t=fat_number/60;
+  fat_number=fat_number%60;
+  s=fat_number;
+}
+
 int write_file(){
   FILE *file;
   char file_name[100], c;
@@ -40,10 +54,10 @@ int write_file(){
 
   do{
     printf("Informe o nome do arquivo, com '.txt'.\n");
-    fgets(file_name, sizeof(file_name), stdin);
+    scanf("%s", file_name);
     file=fopen(file_name, "r");
     system("clear");
-  }while(file!=NULL);
+  }while(file==NULL);
   printf("Arquivo aberto com sucesso.\n");
   while(cylinder[j].track[t].sector[s*4].bytes_s[0]!=0){
     s++;
@@ -70,7 +84,7 @@ int write_file(){
     fatlist_files_actual=fatlist_files_initial;
     do{/*move atual até o fim da lista*/
       fatlist_files_actual=fatlist_files_actual->next_file;
-    }while(fatlist_files_actual->next_file!=NULL);  
+    }while(fatlist_files_actual->next_file!=NULL);
   }
   fatlist_files_new=(fatent_s*)malloc(sizeof(fatlist_files_new));
   strcpy(fatlist_files_new->file_name, file_name);
@@ -108,26 +122,39 @@ int write_file(){
   return 1;
 }
 
-int find_fat_sector(int j, int t, int s){
-  int sum;
-  sum=(j*300)+(t*60)+s;
-  return sum;
+int read_file () {
+  int initial_sector=0, j=0, t=0, s=0;
+  char file_name[100];
+  fatent_s *fatlist_files_actual=NULL;
+
+  printf("Informe o nome do arquivo, com '.txt'.\n");
+  scanf("%s", file_name);
+  fatlist_files_actual=fatlist_files_initial;
+  while ((strcmp((fatlist_files_actual->file_name), file_name))!=0&&(fatlist_files_actual->next_file!=NULL)){
+    fatlist_files_actual=fatlist_files_actual->next_file;
+  }
+  initial_sector=fatlist_files_actual->first_sector;
+  find_drive_sector(initial_sector, &j, &t, &s);
+  
+
 }
 
-/*int main (){
+int main (){
   int menu_option=0;
 
-  show_menu();
-  scanf("%d", &menu_option);
-  while ((menu_option!=1)
+  while (menu_option!=5){
+    show_menu();
+    scanf("%d", &menu_option);
+    while ((menu_option!=1)
       &&(menu_option!=2)
       &&(menu_option!=3)
       &&(menu_option!=4)
       &&(menu_option!=5)) { // garantia de entrada correta.
-    show_menu();
-    printf("Escolha invalida!\nEntre novamente.\n");
-    scanf("%d", &menu_option);
+        show_menu();
+        printf("Escolha invalida!\nEntre novamente.\n");
+        scanf("%d", &menu_option);
+    }
+    menu_selection(menu_option);
   }
-  menu_selection(menu_option);
   return 0;
-}*/
+}

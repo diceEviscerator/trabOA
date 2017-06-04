@@ -12,7 +12,7 @@ LIBS=$(GTESTLIBS)
 _DEPS = drive_lib.h 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = my_drive.o
+_OBJ = drive_test.o my_drive.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
