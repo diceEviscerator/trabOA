@@ -34,4 +34,8 @@ void menu_selection (int menu_option);
 
 int write_file();
 
+int read_file ();
+
+void find_drive_sector(int fat_number, int j, int t, int s);
+
 int find_fat_sector(int j, int t, int s);

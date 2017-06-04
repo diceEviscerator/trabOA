@@ -19,6 +19,7 @@ void menu_selection (int menu_option) { // função que direciona o programa par
       write_file();
       break;
     case 2:
+      read_file();
       break;
     case 3:
       break;
@@ -37,13 +38,13 @@ int find_fat_sector(int j, int t, int s){
   sum=(j*300)+(t*60)+s;
   return sum;
 }
-int find_drive_sector(int fat_number, int *j, int *t, int *s){ // NECESSÁRIO CHECAR!!!!
-  int result;
+void find_drive_sector(int fat_number, int j, int t, int s){ // NECESSÁRIO CHECAR!!!!
   j=fat_number/300;
   fat_number=fat_number%300;
   t=fat_number/60;
   fat_number=fat_number%60;
   s=fat_number;
+  return;
 }
 
 int write_file(){
@@ -103,7 +104,6 @@ int write_file(){
         s++;
         fat_sector_search++;
       }
-
       i=0;
       if(s==60){
         j++;
@@ -119,24 +119,33 @@ int write_file(){
       }
     }
   }
+  fatlist_sectors[fat_sector_search].eof=1;
   return 1;
 }
 
 int read_file () {
-  int initial_sector=0, j=0, t=0, s=0;
-  char file_name[100];
+  int sector_number=0, j=0, t=0, s=0, i=0;
+  char file_name[100], c=0;
   fatent_s *fatlist_files_actual=NULL;
+  FILE *out;
 
+  out=fopen("saida.txt", "w");
   printf("Informe o nome do arquivo, com '.txt'.\n");
   scanf("%s", file_name);
   fatlist_files_actual=fatlist_files_initial;
-  while ((strcmp((fatlist_files_actual->file_name), file_name))!=0&&(fatlist_files_actual->next_file!=NULL)){
+  while (((strcmp((fatlist_files_actual->file_name), file_name))!=0)&&(fatlist_files_actual->next_file!=NULL)){
     fatlist_files_actual=fatlist_files_actual->next_file;
   }
-  initial_sector=fatlist_files_actual->first_sector;
-  find_drive_sector(initial_sector, &j, &t, &s);
-  
-
+  sector_number=fatlist_files_actual->first_sector;
+  while((fatlist_sectors[sector_number].eof)!=1){
+    find_drive_sector(sector_number, j, t, s);
+    for(i=0; i<512; i++){
+      c=cylinder[j].track[t].sector[s].bytes_s[i];
+      fprintf(out, "%c", c);
+    }
+  }
+  fclose(out);
+  return 1;
 }
 
 int main (){
