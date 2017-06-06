@@ -3,7 +3,7 @@
 #include <string.h>
 
 typedef struct block {
-	unsigned char bytes_s[512];
+	char bytes_s[512];
 } block;
 
 typedef struct  sectror_array {
@@ -26,15 +26,15 @@ typedef struct fatent_s {
 	struct fatent_s *next_file;
 } fatent;
 
-
+void initialize_disk();
 
 void show_menu ();
 
 void menu_selection (int menu_option);
 
-int write_file();
+void write_file();
 
-int read_file ();
+void read_file ();
 
 void find_drive_sector(int fat_number, int j, int t, int s);
 

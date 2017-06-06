@@ -7,7 +7,7 @@ fatent_s *fatlist_files_initial=NULL;
 
 void show_menu () { // simples função que limpa a tela e mostra o menu.
 
-  system("clear");
+  //system("clear");
   printf("1 - Escrever Arquivo\n2 - Ler Arquivo\n3 - Apagar Arquivo\n4 - Mostrar Tabela FAT\n5 - Sair\n");
   return;
 }
@@ -46,8 +46,31 @@ void find_drive_sector(int fat_number, int j, int t, int s){ // NECESSÁRIO CHEC
   s=fat_number;
   return;
 }
+void initialize_disk(){
+  int c=0, t=0, s=0, b=0;
+  while(c<11){
+    if(b==512){
+      b=0;
+      s++;
+      if(s==60){
+        s=0;
+        t++;
+        if(t==5){
+          t=0;
+          c++;
+          if(c==10){
+            return;
+          }
+        }
+      }
+    }
+    cylinder[c].track[t].sector[s].bytes_s[b]=0;
+    b++;
+    //printf("%d %d %d %d, %c\n",c, t, s ,b, cylinder[c].track[t].sector[s].bytes_s[b]);
+  }
+}
 
-int write_file(){
+void write_file(){
   FILE *file;
   char file_name[100], c;
   int t=0, s=0, i=0, j=0, fat_sector, fat_sector_search;
@@ -55,12 +78,19 @@ int write_file(){
 
   do{
     printf("Informe o nome do arquivo, com '.txt'.\n");
+    printf("flag\n");
     scanf("%s", file_name);
+    printf("flag\n");
     file=fopen(file_name, "r");
-    system("clear");
+    printf("flag\n");
+    //system("clear");
+    printf("flag\n");
   }while(file==NULL);
   printf("Arquivo aberto com sucesso.\n");
-  while(cylinder[j].track[t].sector[s*4].bytes_s[0]!=0){
+  getchar();
+  while(cylinder[j].track[t].sector[s*4].bytes_s[0]==0){
+    printf("%d, %d, %d\n", s, j, t);
+    getchar();
     s++;
     if(s==15){
       j++;
@@ -70,7 +100,7 @@ int write_file(){
         j=0;
         if(t==5){
           printf("Disco cheio\n");
-          return 0;
+          return;
         }
       }
     }
@@ -113,17 +143,17 @@ int write_file(){
           j=0;
           if(t==5){
             printf("Disco cheio, dados truncados.\n");
-            return 0;
+            return;
           }
         }
       }
     }
   }
   fatlist_sectors[fat_sector_search].eof=1;
-  return 1;
+  return;
 }
 
-int read_file () {
+void read_file () {
   int sector_number=0, j=0, t=0, s=0, i=0;
   char file_name[100], c=0;
   fatent_s *fatlist_files_actual=NULL;
@@ -145,12 +175,13 @@ int read_file () {
     }
   }
   fclose(out);
-  return 1;
+  return;
 }
 
 int main (){
   int menu_option=0;
 
+  initialize_disk();
   while (menu_option!=5){
     show_menu();
     scanf("%d", &menu_option);
