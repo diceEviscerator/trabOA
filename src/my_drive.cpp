@@ -88,9 +88,8 @@ void write_file(){
   }while(file==NULL);
   printf("Arquivo aberto com sucesso.\n");
   getchar();
-  while(cylinder[j].track[t].sector[s*4].bytes_s[0]==0){
-    printf("%d, %d, %d\n", s, j, t);
-    getchar();
+  while(cylinder[j].track[t].sector[s*4].bytes_s[0]!=0){
+    printf("%d, %d, %d\n", j, t, s);
     s++;
     if(s==15){
       j++;
