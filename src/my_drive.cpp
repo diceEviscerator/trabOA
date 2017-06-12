@@ -66,7 +66,6 @@ void initialize_disk(){
     }
     cylinder[c].track[t].sector[s].bytes_s[b]=0;
     b++;
-    //printf("%d %d %d %d, %c\n",c, t, s ,b, cylinder[c].track[t].sector[s].bytes_s[b]);
   }
 }
 
@@ -78,24 +77,18 @@ void write_file(){
 
   do{
     printf("Informe o nome do arquivo, com '.txt'.\n");
-    printf("flag\n");
     scanf("%s", file_name);
-    printf("flag\n");
     file=fopen(file_name, "r");
-    printf("flag\n");
     //system("clear");
-    printf("flag\n");
   }while(file==NULL);
   printf("Arquivo aberto com sucesso.\n");
-  getchar();
-  while(cylinder[j].track[t].sector[s*4].bytes_s[0]!=0){
-    printf("%d, %d, %d\n", j, t, s);
-    s++;
-    if(s==15){
-      j++;
+  while(cylinder[j].track[t].sector[s].bytes_s[0]!=0){
+    s=s+4;
+    if(s==60){
+      ++j;
       s=0;
       if(j==10){
-        t++;
+        ++t;
         j=0;
         if(t==5){
           printf("Disco cheio\n");
@@ -105,6 +98,7 @@ void write_file(){
     }
   }
   fat_sector=find_fat_sector(j, t, s);
+  printf("%d\n", fat_sector);
   fatlist_files_actual=(fatent_s*)malloc(sizeof(fatlist_files_actual));
   if (fatlist_files_initial==NULL){
     fatlist_files_initial=(fatent_s*)malloc(sizeof(fatlist_files_initial));
@@ -114,15 +108,20 @@ void write_file(){
     fatlist_files_actual=fatlist_files_initial;
     do{/*move atual até o fim da lista*/
       fatlist_files_actual=fatlist_files_actual->next_file;
+      printf("1\n");
     }while(fatlist_files_actual->next_file!=NULL);
+    printf("flag\n");
   }
   fatlist_files_new=(fatent_s*)malloc(sizeof(fatlist_files_new));
   strcpy(fatlist_files_new->file_name, file_name);
   fatlist_files_new->first_sector=fat_sector;
   fatlist_files_actual->next_file=fatlist_files_new;
   fatlist_files_new->first_sector=fat_sector;
+  fatlist_files_new->next_file=NULL;
   fat_sector_search=fat_sector;
-  while((c=fgetc(file)!=EOF)){
+  do{
+    fread(&c, sizeof(char), 1, file);
+    if(feof(file)){break;}
     cylinder[j].track[t].sector[s].bytes_s[i]=c;
     if(fatlist_sectors[fat_sector].used==0){fatlist_sectors[fat_sector].used=1;}
     i++;
@@ -147,8 +146,9 @@ void write_file(){
         }
       }
     }
-  }
+  }while(c!=EOF);
   fatlist_sectors[fat_sector_search].eof=1;
+  fclose(file);
   return;
 }
 
