@@ -73,7 +73,7 @@ void write_file(){
   FILE *file;
   char file_name[100], c;
   int t=0, s=0, i=0, j=0, fat_sector, fat_sector_search;
-  fatent_s *fatlist_files_actual, *fatlist_files_new;
+  fatent_s *fatlist_files_actual=NULL, *fatlist_files_new=NULL;
 
   do{
     printf("Informe o nome do arquivo, com '.txt'.\n");
@@ -108,11 +108,13 @@ void write_file(){
     fatlist_files_actual=fatlist_files_initial;
     do{/*move atual até o fim da lista*/
       fatlist_files_actual=fatlist_files_actual->next_file;
+      if(fatlist_files_actual==NULL){break;}
       printf("1\n");
-    }while(fatlist_files_actual->next_file!=NULL);
+    }while(fatlist_files_actual!=NULL);
     printf("flag\n");
   }
   fatlist_files_new=(fatent_s*)malloc(sizeof(fatlist_files_new));
+
   strcpy(fatlist_files_new->file_name, file_name);
   fatlist_files_new->first_sector=fat_sector;
   fatlist_files_actual->next_file=fatlist_files_new;
